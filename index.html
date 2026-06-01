@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CrazyTapok | Sonic Hub</title>
+    <!-- Подключаем иконки и шрифты -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    
+    <!-- ВАЖНО: Используем прямой CDN от Supabase для надежности -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
             --bg-dark: #05020a;
@@ -181,13 +185,16 @@
     <div class="modal-overlay active" id="authModal">
         <div class="auth-box">
             <div class="logo">CRAZY<span>TAPOK</span></div>
-            <select id="roleSelect" class="input-field" style="cursor: pointer;">
+            
+            <!-- Добавлен onchange прямо здесь для надежности -->
+            <select id="roleSelect" class="input-field" style="cursor: pointer;" onchange="toggleRoleFields()">
                 <option value="listener">🎧 Слушатель</option>
                 <option value="producer">🎛️ Продюсер</option>
             </select>
             
             <div id="loginFields">
                 <input type="text" id="usernameInput" class="input-field" placeholder="Введите ваш никнейм">
+                <!-- Поле ключа скрыто по умолчанию -->
                 <div id="adminKeyField" style="display:none;">
                     <input type="password" id="adminKeyInput" class="input-field" placeholder="Секретный ключ">
                 </div>
@@ -263,7 +270,7 @@
 
 <script>
     // ================= CONFIG =================
-    const ADMIN_KEY = "CRAZYTAPOK2026";
+    const ADMIN_KEY = "CRAZYTAPOK2026"; 
     const SUPABASE_URL = 'https://giwbzwndnubccyntbtwb.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdpd2J6d25kbnViY2N5bnRidHdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTU5NDUsImV4cCI6MjA5NTg5MTk0NX0.-cU65iiadhKyzcT2Z5KQUqrdBoyxLtIIvcSpXq0oYVU';
     
@@ -273,47 +280,66 @@
     
     // Player State
     let audio = new Audio();
+    audio.crossOrigin = "anonymous"; // ВАЖНО для работы с внешними ссылками и визуализатором
     let currentTrackId = null;
     let isPlaying = false;
     let audioContext, analyser, source;
+    let isAudioSetup = false; // Флаг, чтобы настроить аудио только один раз
 
     // ================= INIT =================
     window.onload = function() {
-        if (window.supabase) {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log("Supabase initialized");
-        } else {
-            console.error("Supabase library failed to load!");
-        }
+        console.log("Страница загружена.");
         
-        // Логика переключения полей из старого кода
-        document.getElementById('roleSelect').addEventListener('change', (e) => {
-            const isAdmin = e.target.value === 'producer';
-            document.getElementById('adminKeyField').style.display = isAdmin ? 'block' : 'none';
-            document.getElementById('usernameInput').value = isAdmin ? 'CrazyTapok' : '';
-        });
+        if (typeof window.supabase === 'undefined') {
+            alert("Ошибка сети: Библиотека Supabase не загрузилась.");
+            return;
+        }
+
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log("✅ Supabase готов.");
+        } catch (e) {
+            alert("Ошибка инициализации Supabase.");
+            return;
+        }
+
+        toggleRoleFields();
     };
+
+    function toggleRoleFields() {
+        const role = document.getElementById('roleSelect').value;
+        const adminField = document.getElementById('adminKeyField');
+        const userField = document.getElementById('usernameInput');
+
+        if (role === 'producer') {
+            adminField.style.display = 'block';
+            userField.value = 'CrazyTapok';
+            userField.disabled = true;
+        } else {
+            adminField.style.display = 'none';
+            userField.value = '';
+            userField.disabled = false;
+        }
+    }
 
     // ================= AUTH & PROFILE =================
     async function handleLogin() {
+        if (!supabaseClient) return;
+
         const role = document.getElementById('roleSelect').value;
         const name = document.getElementById('usernameInput').value.trim();
         
         if (role === 'producer') {
             if (document.getElementById('adminKeyInput').value !== ADMIN_KEY) {
-                showToast(" Неверный ключ доступа", true);
+                showToast(" Неверный ключ", true);
                 return;
             }
         } else if (!name) {
-            showToast("⛔ Введите имя", true);
+            showToast(" Введите имя", true);
             return;
         }
 
-        user = { 
-            name: role === 'producer' ? 'CrazyTapok' : name, 
-            role: role,
-            avatar: null 
-        };
+        user = { name: role === 'producer' ? 'CrazyTapok' : name, role: role, avatar: null };
 
         document.getElementById('authModal').classList.remove('active');
         document.getElementById('appInterface').style.opacity = '1';
@@ -324,65 +350,47 @@
     function setupUI() {
         document.getElementById('profileName').textContent = user.name;
         document.getElementById('profileRole').textContent = user.role === 'producer' ? 'PRODUCER / ADMIN' : 'LISTENER';
-        
-        if (user.avatar) {
-            document.getElementById('profileAvatar').src = user.avatar;
-        }
-
-        if (user.role === 'producer') {
-            document.getElementById('uploadSection').style.display = 'block';
-        }
+        if (user.avatar) document.getElementById('profileAvatar').src = user.avatar;
+        if (user.role === 'producer') document.getElementById('uploadSection').style.display = 'block';
     }
 
     function logout() { location.reload(); }
 
     // ================= TRACKS LOGIC =================
     async function loadTracks() {
+        if (!supabaseClient) return;
         try {
-            const { data, error } = await supabaseClient
-                .from('tracks')
-                .select('*')
-                .order('created_at', { ascending: false });
-
+            const { data, error } = await supabaseClient.from('tracks').select('*').order('created_at', { ascending: false });
             if (error) throw error;
             tracks = data || [];
             renderTracks();
             updateStats();
         } catch (e) {
-            console.error("Ошибка загрузки:", e);
-            showToast("Ошибка подключения к базе данных", true);
+            console.error(e);
+            showToast("Ошибка загрузки треков", true);
         }
     }
 
     function renderTracks() {
         const container = document.getElementById('trackListContainer');
         container.innerHTML = '';
-
         if (tracks.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding:2rem; color:#444;">
-                <i class="fas fa-ghost fa-2x"></i><br>Библиотека пуста
-            </div>`;
+            container.innerHTML = `<div style="text-align:center; padding:2rem; color:#444;"><i class="fas fa-ghost fa-2x"></i><br>Библиотека пуста</div>`;
             return;
         }
-
         tracks.forEach(track => {
-            const isActive = track.id === currentTrackId;
+            const isActive = track.id == currentTrackId;
             const div = document.createElement('div');
             div.className = `track-card ${isActive ? 'active' : ''}`;
             div.innerHTML = `
-                <button class="play-btn" onclick="playTrack('${track.id}')">
+                <button class="play-btn" onclick="playTrack(${track.id})">
                     <i class="fas ${isActive && isPlaying ? 'fa-pause' : 'fa-play'}"></i>
                 </button>
                 <div class="track-info">
                     <div class="track-title">${escapeHtml(track.title)}</div>
-                    <div class="track-meta">
-                        <span>${track.size || 'N/A'}</span>
-                    </div>
+                    <div class="track-meta"><span>${track.size || 'N/A'}</span></div>
                 </div>
-                ${user.role === 'producer' ? `
-                <button class="btn-icon delete" onclick="deleteTrack('${track.id}')">
-                    <i class="fas fa-trash"></i>
-                </button>` : ''}
+                ${user.role === 'producer' ? `<button class="btn-icon delete" onclick="deleteTrack(${track.id})"><i class="fas fa-trash"></i></button>` : ''}
             `;
             container.appendChild(div);
         });
@@ -392,49 +400,30 @@
         const titleIn = document.getElementById('trackTitleInput');
         const fileIn = document.getElementById('trackFileInput');
         const btn = document.getElementById('addTrackBtn');
-        
         const file = fileIn.files[0];
         const title = titleIn.value.trim();
 
-        if (!file || !title) {
-            showToast("Выберите файл и введите название", true);
-            return;
-        }
+        if (!file || !title) { showToast("Заполните все поля", true); return; }
 
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        showToast("Обработка файла...");
 
         try {
             const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-            const { error: storageError } = await supabaseClient.storage
-                .from('music')
-                .upload(fileName, file);
-
+            const { error: storageError } = await supabaseClient.storage.from('music').upload(fileName, file);
             if (storageError) throw storageError;
 
             const { data: urlData } = supabaseClient.storage.from('music').getPublicUrl(fileName);
-            const publicUrl = urlData.publicUrl;
-
-            const { error: dbError } = await supabaseClient
-                .from('tracks')
-                .insert([
-                    { 
-                        title: title, 
-                        url: publicUrl, 
-                        size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
-                        created_at: new Date().toISOString()
-                    }
-                ]);
-
+            
+            const { error: dbError } = await supabaseClient.from('tracks').insert([
+                { title: title, url: urlData.publicUrl, size: (file.size / 1024 / 1024).toFixed(2) + ' MB', created_at: new Date().toISOString() }
+            ]);
             if (dbError) throw dbError;
 
-            showToast("✅ Трек успешно добавлен!");
-            titleIn.value = '';
-            fileIn.value = '';
+            showToast("✅ Трек добавлен!");
+            titleIn.value = ''; fileIn.value = '';
             loadTracks();
         } catch (e) {
-            console.error(e);
             showToast("❌ Ошибка: " + e.message, true);
         } finally {
             btn.disabled = false;
@@ -443,28 +432,68 @@
     }
 
     async function deleteTrack(id) {
-        if(!confirm("Удалить навсегда?")) return;
-        if(currentTrackId === id) {
-            audio.pause();
-            document.getElementById('playerBar').classList.remove('visible');
-            currentTrackId = null;
-        }
+        if(!confirm("Удалить?")) return;
+        if(currentTrackId == id) { audio.pause(); document.getElementById('playerBar').classList.remove('visible'); currentTrackId = null; }
         await supabaseClient.from('tracks').delete().eq('id', id);
         loadTracks();
-        showToast("Трек удален");
     }
 
-    // ================= PLAYER ENGINE =================
+    // ================= PLAYER ENGINE (ИСПРАВЛЕНО) =================
+    
+    // Эта функция настраивает AudioContext ТОЛЬКО ОДИН РАЗ при первом взаимодействии
+    function setupAudioContext() {
+        if (isAudioSetup) return;
+        
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioContext = new AudioContext();
+            analyser = audioContext.createAnalyser();
+            
+            // Подключаем HTML Audio элемент к Web Audio API
+            source = audioContext.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioContext.destination); // Вывод звука на колонки
+            
+            analyser.fftSize = 64;
+            
+            // Создаем столбики визуализатора
+            const container = document.getElementById('visualizer');
+            container.innerHTML = '';
+            for(let i=0; i<30; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                container.appendChild(bar);
+            }
+            
+            isAudioSetup = true;
+            console.log("🔊 Audio Context настроен и подключен к колонкам.");
+        } catch (e) {
+            console.error("Ошибка настройки аудио:", e);
+        }
+    }
+
     function playTrack(id) {
-        const track = tracks.find(t => t.id === id);
+        // 1. Сначала настраиваем аудио движок (если еще не настроен)
+        setupAudioContext();
+
+        // Если контекст был приостановлен браузером (частая проблема Chrome/Edge), возобновляем его
+        if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+
+        const track = tracks.find(t => t.id == id);
         if (!track) return;
 
-        if (currentTrackId === id) {
+        if (currentTrackId == id) {
             togglePlay();
             return;
         }
 
         audio.src = track.url;
+        audio.volume = 1.0;
+        
+        console.log("Запуск воспроизведения:", track.title);
+
         audio.play().then(() => {
             currentTrackId = id;
             isPlaying = true;
@@ -472,12 +501,20 @@
             document.getElementById('playerTitle').textContent = track.title;
             updatePlayBtn();
             renderTracks();
-            initVisualizer();
-        }).catch(e => showToast("Ошибка воспроизведения", true));
+            renderFrame(); // Запускаем отрисовку визуализатора
+        }).catch(e => {
+            console.error("Ошибка Play:", e);
+            showToast("Не удалось воспроизвести", true);
+        });
     }
 
     function togglePlay() {
         if (!currentTrackId) return;
+        
+        if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+
         if (audio.paused) {
             audio.play();
             isPlaying = true;
@@ -495,12 +532,12 @@
     }
 
     function nextTrack() {
-        const idx = tracks.findIndex(t => t.id === currentTrackId);
+        const idx = tracks.findIndex(t => t.id == currentTrackId);
         if (idx > -1 && idx < tracks.length - 1) playTrack(tracks[idx + 1].id);
     }
 
     function prevTrack() {
-        const idx = tracks.findIndex(t => t.id === currentTrackId);
+        const idx = tracks.findIndex(t => t.id == currentTrackId);
         if (idx > 0) playTrack(tracks[idx - 1].id);
     }
 
@@ -528,36 +565,16 @@
     });
 
     // ================= VISUALIZER =================
-    function initVisualizer() {
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            source = audioContext.createMediaElementSource(audio);
-            source.connect(analyser);
-            analyser.connect(audioContext.destination);
-            analyser.fftSize = 64;
-            
-            const container = document.getElementById('visualizer');
-            container.innerHTML = '';
-            for(let i=0; i<30; i++) {
-                const bar = document.createElement('div');
-                bar.className = 'bar';
-                container.appendChild(bar);
-            }
-        }
-        if (audioContext.state === 'suspended') audioContext.resume();
-        renderFrame();
-    }
-
     function renderFrame() {
-        if (!isPlaying) return;
+        if (!isPlaying || !analyser) return;
         requestAnimationFrame(renderFrame);
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
+        
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(dataArray);
         
         const bars = document.querySelectorAll('.bar');
         bars.forEach((bar, i) => {
+            // Берем данные из частотного диапазона
             const val = dataArray[i] || 0;
             const height = Math.max(4, (val / 255) * 40);
             bar.style.height = `${height}px`;
@@ -574,22 +591,14 @@
         setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    function formatSize(bytes) {
-        if (!bytes) return '0 MB';
-        return (bytes / (1024*1024)).toFixed(1) + ' MB';
-    }
-
+    function formatSize(bytes) { return bytes ? (bytes / (1024*1024)).toFixed(1) + ' MB' : '0 MB'; }
     function formatTime(sec) {
         if (!sec) return "00:00";
         const m = Math.floor(sec / 60);
         const s = Math.floor(sec % 60);
         return `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
     }
-
-    function escapeHtml(text) {
-        return text.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' })[m]);
-    }
-
+    function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' })[m]); }
     function updateStats() {
         document.getElementById('statTracks').textContent = tracks.length;
         const totalSize = tracks.reduce((acc, t) => acc + (t.size ? parseFloat(t.size) : 0), 0);
