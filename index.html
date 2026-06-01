@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CrazyTapok | Secure Sonic Hub</title>
+    <title>CrazyTapok | Sonic Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -31,10 +31,11 @@
             color: var(--text-main);
             font-family: var(--font-main);
             min-height: 100vh;
-            overflow-x: hidden; /* Запрещаем горизонтальную прокрутку */
+            overflow-x: hidden;
             position: relative;
         }
 
+        /* --- BACKGROUND --- */
         .cyber-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background: radial-gradient(circle at center, #2a0e45 0%, #000000 100%);
@@ -55,6 +56,7 @@
             mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 90%);
             -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 90%);
             background-position: 0 0; 
+            will-change: background-position; /* Оптимизация анимации */
         }
 
         .particles {
@@ -78,6 +80,7 @@
             z-index: 0;
         }
 
+        /* --- LAYOUT --- */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
@@ -263,101 +266,64 @@
         .toast.show { transform: translateX(0); }
 
         /* =========================================
-           📱 MOBILE ADAPTIVE STYLES (FIXED)
+           📱 MOBILE OPTIMIZATION (FIXED LAGS)
            ========================================= */
         @media (max-width: 1024px) {
+            /* Отключаем тяжелую 3D сетку на телефонах */
+            .grid-floor { display: none !important; }
+            
+            /* Упрощаем фон */
+            .cyber-bg {
+                background: radial-gradient(circle at center, #2a0e45 0%, #000000 100%) !important;
+                perspective: none !important;
+            }
+
             .app-container { 
-                grid-template-columns: 1fr; /* Одна колонка */
-                padding: 1rem; /* Меньше отступы по краям */
-                padding-bottom: 160px; /* Место для плеера */
-                gap: 1.5rem;
-                width: 100%; /* Растягиваем на всю ширину */
+                grid-template-columns: 1fr; 
+                padding: 1rem; 
+                padding-bottom: 160px; 
+                gap: 1rem;
             }
 
-            .sidebar { 
-                position: static; /* Убираем липкость */
-                width: 100%;
-            }
-
+            .sidebar { position: static; width: 100%; margin-bottom: 1rem; }
+            
             .glass-card {
                 padding: 1.5rem;
-                width: 100%; /* Карточки на всю ширину */
+                /* Уменьшаем блюр для производительности */
+                backdrop-filter: blur(10px); 
+                -webkit-backdrop-filter: blur(10px);
+                background: rgba(15, 10, 25, 0.9); 
             }
 
-            .avatar-wrapper {
-                width: 100px; height: 100px;
-            }
-
-            .user-name { font-size: 1.5rem; }
+            .avatar-wrapper { width: 80px; height: 80px; }
+            .user-name { font-size: 1.4rem; }
             
-            .stats-grid {
-                margin-top: 1.5rem;
-                padding-top: 1.5rem;
-            }
+            .stats-grid { margin-top: 1.5rem; padding-top: 1.5rem; }
 
-            /* Адаптация плеера для мобильных */
+            /* Адаптация плеера */
             .player-dock {
                 padding: 0.8rem 1rem;
-                flex-wrap: wrap; /* Разрешаем перенос */
+                flex-wrap: wrap;
                 justify-content: space-between;
-                gap: 0.5rem;
-                height: auto; /* Высота по содержимому */
+                height: auto;
             }
 
-            .player-controls {
-                order: 2; /* Кнопки по центру */
-                width: 100%;
-                justify-content: center;
-                margin-top: 0.5rem;
-                gap: 1.5rem;
-            }
-
-            .player-info {
-                order: 1;
-                width: calc(100% - 40px);
-                margin-bottom: 0.2rem;
-                text-align: center; /* Центрируем текст */
-            }
-
-            .visualizer {
-                order: 3;
-                width: 100%;
-                height: 25px;
-                margin-top: 0.5rem;
-                opacity: 0.7;
-            }
-
-            /* Скрываем ползунок громкости на мобильных */
-            .player-dock > div:last-child {
-                display: none; 
-            }
-
+            .player-controls { order: 2; width: 100%; justify-content: center; margin-top: 0.5rem; gap: 2rem; }
+            .player-info { order: 1; width: 100%; text-align: center; margin-bottom: 0.5rem; }
+            .visualizer { order: 3; width: 100%; height: 20px; margin-top: 0.5rem; opacity: 0.5; }
+            .player-dock > div:last-child { display: none; } /* Скрываем громкость */
+            
             .ctrl-main { font-size: 2.2rem; }
             .ctrl-btn { font-size: 1.2rem; }
 
-            .track-item {
-                padding: 1rem;
-            }
+            .track-item { padding: 0.8rem; }
+            .play-circle { width: 40px; height: 40px; font-size: 1rem; }
             
-            .play-circle {
-                width: 40px; height: 40px; font-size: 1rem;
-            }
-
-            .upload-dropzone {
-                padding: 2rem 1rem;
-            }
-            
-            /* Форма загрузки на мобильных */
-            #uploadSection > div:last-child {
-                flex-direction: column; /* Поле и кнопка друг под другом */
-            }
-            #uploadSection button {
-                width: 100%;
-                margin-top: 1rem;
-            }
+            /* Форма загрузки */
+            #uploadSection > div:last-child { flex-direction: column; }
+            #uploadSection button { width: 100%; margin-top: 1rem; }
         }
 
-        /* Для очень маленьких экранов */
         @media (max-width: 380px) {
             .user-name { font-size: 1.3rem; }
             .stat-val { font-size: 1.2rem; }
@@ -488,7 +454,6 @@
     const SUPABASE_URL = 'https://giwbzwndnubccyntbtwb.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdpd2J6d25kbnViY2N5bnRidHdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTU5NDUsImV4cCI6MjA5NTg5MTk0NX0.-cU65iiadhKyzcT2Z5KQUqrdBoyxLtIIvcSpXq0oYVU';
     
-
     let supabaseClient;
     let user = { name: "Guest", role: "listener", uid: null };
     let tracks = [];
@@ -516,14 +481,12 @@
         toggleRoleFields();
         requestAnimationFrame(animateBackground);
         
-        // Проверяем, не вошел ли пользователь ранее
         checkSession();
     };
 
     async function checkSession() {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) {
-            // Если сессия есть, автоматически входим как продюсер
             user = { name: "CrazyTapok", role: "producer", uid: session.user.id };
             document.getElementById('authModal').classList.remove('active');
             document.getElementById('appInterface').style.opacity = '1';
@@ -533,19 +496,22 @@
     }
 
     function animateBackground() {
-        if (isPlaying && analyser) {
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteFrequencyData(dataArray);
-            let bassSum = 0;
-            for(let i = 0; i < 10; i++) bassSum += dataArray[i];
-            let bassAverage = bassSum / 10;
-            gridSpeed = 0.5 + (bassAverage / 255) * 4.5;
-        } else {
-            gridSpeed = 0.5;
+        // Анимация работает только если есть сетка (на ПК)
+        if (gridElement && window.innerWidth > 1024) {
+            if (isPlaying && analyser) {
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                analyser.getByteFrequencyData(dataArray);
+                let bassSum = 0;
+                for(let i = 0; i < 10; i++) bassSum += dataArray[i];
+                let bassAverage = bassSum / 10;
+                gridSpeed = 0.5 + (bassAverage / 255) * 4.5;
+            } else {
+                gridSpeed = 0.5;
+            }
+            gridOffset += gridSpeed;
+            if (gridOffset > 60) gridOffset = 0; 
+            gridElement.style.backgroundPosition = `0 ${gridOffset}px`;
         }
-        gridOffset += gridSpeed;
-        if (gridOffset > 60) gridOffset = 0; 
-        gridElement.style.backgroundPosition = `0 ${gridOffset}px`;
         requestAnimationFrame(animateBackground);
     }
 
@@ -557,7 +523,7 @@
 
         if (role === 'producer') {
             adminField.style.display = 'block';
-            userField.style.display = 'none'; // Скрываем поле имени для продюсера
+            userField.style.display = 'none';
             avatarImg.src = PRODUCER_AVATAR_URL;
         } else {
             adminField.style.display = 'none';
@@ -582,7 +548,6 @@
 
             showToast(" Вход...", false);
             
-            // 🔐 НАСТОЯЩАЯ АВТОРИЗАЦИЯ ЧЕРЕЗ SUPABASE
             const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: email,
                 password: password,
@@ -654,7 +619,6 @@
         }
         tracks.forEach(track => {
             const isActive = track.id == currentTrackId;
-            // Проверяем, является ли текущий пользователь владельцем трека
             const isOwner = user.uid && track.user_id === user.uid;
             
             const div = document.createElement('div');
@@ -698,13 +662,12 @@
             
             const { data: urlData } = supabaseClient.storage.from('music').getPublicUrl(fileName);
             
-            // 🔐 ЗАПИСЬ С USER_ID ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ
             const { error: dbError } = await supabaseClient.from('tracks').insert([{ 
                 title: title, 
                 url: urlData.publicUrl, 
                 size: (file.size / 1024 / 1024).toFixed(2) + ' MB', 
                 created_at: new Date().toISOString(),
-                user_id: user.uid // Привязываем трек к пользователю
+                user_id: user.uid 
             }]);
             
             if (dbError) throw dbError;
@@ -722,7 +685,6 @@
     async function deleteTrack(id) {
         if(!confirm("Удалить этот трек навсегда?")) return;
         
-        // 🔐 ПРОВЕРКА ПРАВ НА УДАЛЕНИЕ
         const track = tracks.find(t => t.id === id);
         if (track && track.user_id !== user.uid) {
             showToast("❌ Вы не можете удалить чужой трек!", true);
@@ -740,19 +702,30 @@
         }
     }
 
+    // ================= AUDIO ENGINE (OPTIMIZED) =================
     function setupAudioContext() {
         if (isAudioSetup) return;
         try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             audioContext = new AudioContext();
+            
+            // ВАЖНО ДЛЯ МОБИЛЬНЫХ: Принудительно.resume()
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
             analyser = audioContext.createAnalyser();
             source = audioContext.createMediaElementSource(audio);
             source.connect(analyser);
             analyser.connect(audioContext.destination);
-            analyser.fftSize = 64;
+            analyser.fftSize = 64; 
+            
             const container = document.getElementById('visualizer');
             container.innerHTML = '';
-            for(let i=0; i<40; i++) {
+            // Меньше столбиков для производительности на телефоне
+            const barCount = window.innerWidth < 1024 ? 20 : 40; 
+            
+            for(let i=0; i<barCount; i++) {
                 const bar = document.createElement('div');
                 bar.className = 'v-bar';
                 container.appendChild(bar);
@@ -762,22 +735,39 @@
     }
 
     function playTrack(id) {
+        // Сначала инициализируем аудио (это должно быть внутри клика!)
         setupAudioContext();
-        if (audioContext && audioContext.state === 'suspended') audioContext.resume();
+        
+        // Еще раз убеждаемся, что контекст активен
+        if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume().then(() => {
+                console.log("Audio Context resumed");
+            });
+        }
+
         const track = tracks.find(t => t.id == id);
         if (!track) return;
         if (currentTrackId == id) { togglePlay(); return; }
+        
         audio.src = track.url;
         audio.volume = 1.0;
-        audio.play().then(() => {
-            currentTrackId = id;
-            isPlaying = true;
-            document.getElementById('playerBar').classList.add('visible');
-            document.getElementById('playerTitle').textContent = track.title;
-            updatePlayBtn();
-            renderTracks();
-            renderFrame();
-        }).catch(e => { console.error("Play Error:", e); showToast("Не удалось воспроизвести", true); });
+        
+        // Обработка Promise для мобильных
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                currentTrackId = id;
+                isPlaying = true;
+                document.getElementById('playerBar').classList.add('visible');
+                document.getElementById('playerTitle').textContent = track.title;
+                updatePlayBtn();
+                renderTracks();
+                renderFrame();
+            }).catch(error => {
+                console.error("Play failed:", error);
+                showToast("Нажмите на экран еще раз для воспроизведения", true);
+            });
+        }
     }
 
     function togglePlay() {
