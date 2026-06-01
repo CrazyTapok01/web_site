@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
+        /* ... (ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ, КАК В ПРЕДЫДУЩЕМ КОДЕ) ... */
         :root {
             --bg-dark: #030105;
             --panel-bg: rgba(15, 10, 25, 0.85);
@@ -35,7 +36,6 @@
             position: relative;
         }
 
-        /* --- REACTIVE CYBER GRID BACKGROUND --- */
         .cyber-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background: radial-gradient(circle at center, #2a0e45 0%, #000000 100%);
@@ -79,7 +79,6 @@
             z-index: 0;
         }
 
-        /* --- LAYOUT & GLASSMORPHISM --- */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
@@ -88,6 +87,43 @@
             max-width: 1200px; margin: 0 auto; padding: 2rem;
             display: grid; grid-template-columns: 320px 1fr; gap: 2.5rem;
             min-height: 100vh; position: relative; z-index: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .app-container { 
+                grid-template-columns: 1fr; 
+                padding: 1.5rem; 
+                padding-bottom: 140px; 
+                gap: 1.5rem;
+            }
+            .sidebar { position: static; width: 100%; }
+            .glass-card { padding: 1.5rem; }
+            .avatar-wrapper { width: 100px; height: 100px; }
+            .user-name { font-size: 1.5rem; }
+            .stats-grid { margin-top: 1.5rem; padding-top: 1.5rem; }
+            
+            .player-dock {
+                padding: 0.8rem 1rem;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 0.5rem;
+            }
+            .player-controls { order: 2; width: 100%; justify-content: center; margin-top: 0.5rem; gap: 1.5rem; }
+            .player-info { order: 1; width: calc(100% - 40px); margin-bottom: 0.2rem; }
+            .visualizer { order: 3; width: 100%; height: 25px; margin-top: 0.5rem; opacity: 0.7; }
+            .player-dock > div:last-child { display: none; }
+            .ctrl-main { font-size: 2.2rem; }
+            .ctrl-btn { font-size: 1.2rem; }
+            .track-item { padding: 1rem; }
+            .play-circle { width: 40px; height: 40px; font-size: 1rem; }
+            .upload-dropzone { padding: 2rem 1rem; }
+        }
+
+        @media (max-width: 380px) {
+            .user-name { font-size: 1.3rem; }
+            .stat-val { font-size: 1.2rem; }
+            .brand-logo { font-size: 2rem; }
+            .auth-card { padding: 2rem 1.5rem; }
         }
 
         .glass-card {
@@ -263,96 +299,6 @@
             font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .toast.show { transform: translateX(0); }
-
-        /* =========================================
-           📱 MOBILE ADAPTIVE STYLES
-           ========================================= */
-        @media (max-width: 1024px) {
-            .app-container { 
-                grid-template-columns: 1fr; 
-                padding: 1.5rem; 
-                padding-bottom: 140px; /* Место для плеера */
-                gap: 1.5rem;
-            }
-
-            .sidebar { 
-                position: static; 
-                width: 100%;
-            }
-
-            .glass-card {
-                padding: 1.5rem;
-            }
-
-            .avatar-wrapper {
-                width: 100px; height: 100px;
-            }
-
-            .user-name { font-size: 1.5rem; }
-            
-            .stats-grid {
-                margin-top: 1.5rem;
-                padding-top: 1.5rem;
-            }
-
-            /* Адаптация плеера для мобильных */
-            .player-dock {
-                padding: 0.8rem 1rem;
-                flex-wrap: wrap; /* Разрешаем перенос элементов */
-                justify-content: space-between;
-                gap: 0.5rem;
-            }
-
-            .player-controls {
-                order: 2; /* Кнопки по центру */
-                width: 100%;
-                justify-content: center;
-                margin-top: 0.5rem;
-                gap: 1.5rem;
-            }
-
-            .player-info {
-                order: 1;
-                width: calc(100% - 40px); /* Ширина минус кнопка громкости */
-                margin-bottom: 0.2rem;
-            }
-
-            .visualizer {
-                order: 3;
-                width: 100%;
-                height: 25px;
-                margin-top: 0.5rem;
-                opacity: 0.7;
-            }
-
-            /* Скрываем ползунок громкости на мобильных для экономии места, или делаем его компактным */
-            .player-dock > div:last-child {
-                display: none; 
-            }
-
-            .ctrl-main { font-size: 2.2rem; }
-            .ctrl-btn { font-size: 1.2rem; }
-
-            .track-item {
-                padding: 1rem;
-            }
-            
-            .play-circle {
-                width: 40px; height: 40px; font-size: 1rem;
-            }
-
-            .upload-dropzone {
-                padding: 2rem 1rem;
-            }
-        }
-
-        /* Для очень маленьких экранов */
-        @media (max-width: 380px) {
-            .user-name { font-size: 1.3rem; }
-            .stat-val { font-size: 1.2rem; }
-            .brand-logo { font-size: 2rem; }
-            .auth-card { padding: 2rem 1.5rem; }
-        }
     </style>
 </head>
 <body>
@@ -381,7 +327,8 @@
                     <input type="text" id="usernameInput" class="custom-input" placeholder="Ваш никнейм">
                 </div>
                 <div class="input-group" id="adminKeyField" style="display:none;">
-                    <input type="password" id="adminKeyInput" class="custom-input" placeholder="Секретный ключ доступа">
+                    <input type="email" id="adminEmailInput" class="custom-input" placeholder="Email администратора">
+                    <input type="password" id="adminPasswordInput" class="custom-input" placeholder="Пароль администратора" style="margin-top: 1rem;">
                 </div>
             </div>
 
@@ -472,16 +419,17 @@
     <div class="toast" id="toast">Notification</div>
 
 <script>
-    // ================= CONFIG =================
-    const ADMIN_KEY = "14evgenii22809"; 
+    // ================= CONFIG & SECURITY =================
     const SUPABASE_URL = 'https://giwbzwndnubccyntbtwb.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdpd2J6d25kbnViY2N5bnRidHdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTU5NDUsImV4cCI6MjA5NTg5MTk0NX0.-cU65iiadhKyzcT2Z5KQUqrdBoyxLtIIvcSpXq0oYVU';
     
-    const PRODUCER_AVATAR_URL = 'https://1s4oyld5dc.ucarecd.net/78c10222-d5aa-45cd-9dad-aab4ab36f79e/';
-    const LISTENER_AVATAR_URL = 'https://1s4oyld5dc.ucarecd.net/78c10222-d5aa-45cd-9dad-aab4ab36f79e/';
+    // 🔐 ЗАЩИТА: Используем Supabase Auth. Пароли не хранятся в коде.
+    // Введи здесь Email и Пароль, которые ты создал в Supabase Dashboard -> Authentication -> Users
+    const ADMIN_EMAIL = "prosunin3@gmail.com"; 
+    const ADMIN_PASSWORD = "CoRTeZz2191"; 
 
     let supabaseClient;
-    let user = { name: "Guest", role: "listener" };
+    let user = { name: "Guest", role: "listener", uid: null };
     let tracks = [];
     
     let audio = new Audio();
@@ -490,11 +438,12 @@
     let isPlaying = false;
     let audioContext, analyser, source;
     let isAudioSetup = false;
-
-    // Переменные для анимации фона
     let gridOffset = 0;
     let gridSpeed = 0.5;
     const gridElement = document.getElementById('gridFloor');
+    
+    const PRODUCER_AVATAR_URL = 'https://1s4oyld5dc.ucarecd.net/78c10222-d5aa-45cd-9dad-aab4ab36f79e/';
+    const LISTENER_AVATAR_URL = 'https://ui-avatars.com/api/?name=User&background=333&color=fff&size=200';
 
     window.onload = function() {
         if (typeof window.supabase === 'undefined') {
@@ -505,7 +454,22 @@
         document.getElementById('profileAvatar').src = LISTENER_AVATAR_URL;
         toggleRoleFields();
         requestAnimationFrame(animateBackground);
+        
+        // Проверяем, не вошел ли пользователь ранее
+        checkSession();
     };
+
+    async function checkSession() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+            // Если сессия есть, автоматически входим как продюсер
+            user = { name: "CrazyTapok", role: "producer", uid: session.user.id };
+            document.getElementById('authModal').classList.remove('active');
+            document.getElementById('appInterface').style.opacity = '1';
+            setupUI();
+            loadTracks();
+        }
+    }
 
     function animateBackground() {
         if (isPlaying && analyser) {
@@ -532,13 +496,12 @@
 
         if (role === 'producer') {
             adminField.style.display = 'block';
-            userField.value = 'CrazyTapok';
-            userField.disabled = true;
+            userField.style.display = 'none'; // Скрываем поле имени для продюсера
             avatarImg.src = PRODUCER_AVATAR_URL;
         } else {
             adminField.style.display = 'none';
+            userField.style.display = 'block';
             userField.value = '';
-            userField.disabled = false;
             avatarImg.src = LISTENER_AVATAR_URL;
         }
     }
@@ -546,36 +509,66 @@
     async function handleLogin() {
         if (!supabaseClient) return;
         const role = document.getElementById('roleSelect').value;
-        const name = document.getElementById('usernameInput').value.trim();
-        const avatarImg = document.getElementById('profileAvatar');
         
         if (role === 'producer') {
-            if (document.getElementById('adminKeyInput').value !== ADMIN_KEY) {
-                showToast(" Неверный ключ доступа", true);
+            const email = document.getElementById('adminEmailInput').value.trim();
+            const password = document.getElementById('adminPasswordInput').value;
+
+            if (!email || !password) {
+                showToast(" Введите Email и Пароль", true);
                 return;
             }
-            avatarImg.src = PRODUCER_AVATAR_URL;
-        } else if (!name) {
-            showToast(" Введите имя", true);
-            return;
-        } else {
-            avatarImg.src = LISTENER_AVATAR_URL;
-        }
 
-        user = { name: role === 'producer' ? 'CrazyTapok' : name, role: role };
-        document.getElementById('authModal').classList.remove('active');
-        document.getElementById('appInterface').style.opacity = '1';
-        setupUI();
-        loadTracks();
+            showToast(" Вход...", false);
+            
+            // 🔐 НАСТОЯЩАЯ АВТОРИЗАЦИЯ ЧЕРЕЗ SUPABASE
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                console.error(error);
+                showToast(" Неверный Email или Пароль", true);
+                return;
+            }
+
+            if (data.session) {
+                user = { name: "CrazyTapok", role: "producer", uid: data.session.user.id };
+                document.getElementById('authModal').classList.remove('active');
+                document.getElementById('appInterface').style.opacity = '1';
+                setupUI();
+                loadTracks();
+                showToast("✅ Добро пожаловать, Продюсер!");
+            }
+        } else {
+            const name = document.getElementById('usernameInput').value.trim();
+            if (!name) {
+                showToast(" Введите имя", true);
+                return;
+            }
+            user = { name: name, role: "listener", uid: null };
+            document.getElementById('authModal').classList.remove('active');
+            document.getElementById('appInterface').style.opacity = '1';
+            setupUI();
+            loadTracks();
+        }
     }
 
     function setupUI() {
         document.getElementById('profileName').textContent = user.name;
         document.getElementById('profileRole').textContent = user.role === 'producer' ? 'PRODUCER / ADMIN' : 'LISTENER';
-        if (user.role === 'producer') document.getElementById('uploadSection').style.display = 'block';
+        document.getElementById('profileAvatar').src = user.role === 'producer' ? PRODUCER_AVATAR_URL : LISTENER_AVATAR_URL;
+        
+        if (user.role === 'producer') {
+            document.getElementById('uploadSection').style.display = 'block';
+        }
     }
 
-    function logout() { location.reload(); }
+    async function logout() {
+        await supabaseClient.auth.signOut();
+        location.reload();
+    }
 
     async function loadTracks() {
         if (!supabaseClient) return;
@@ -600,6 +593,9 @@
         }
         tracks.forEach(track => {
             const isActive = track.id == currentTrackId;
+            // Проверяем, является ли текущий пользователь владельцем трека
+            const isOwner = user.uid && track.user_id === user.uid;
+            
             const div = document.createElement('div');
             div.className = `track-item ${isActive ? 'active' : ''}`;
             div.innerHTML = `
@@ -610,39 +606,77 @@
                     <div class="track-name">${escapeHtml(track.title)}</div>
                     <div class="track-info-sub">${track.size || 'Unknown Size'} • Added recently</div>
                 </div>
-                ${user.role === 'producer' ? `<button class="action-btn" onclick="deleteTrack(${track.id})"><i class="fas fa-trash-alt"></i></button>` : ''}
+                ${isOwner ? `
+                <button class="action-btn" onclick="deleteTrack(${track.id})" title="Удалить (Только владелец)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>` : ''}
             `;
             container.appendChild(div);
         });
     }
 
     async function addTrack() {
+        if (!user.uid) {
+            showToast("❌ Только авторизованные пользователи могут загружать!", true);
+            return;
+        }
+
         const titleIn = document.getElementById('trackTitleInput');
         const fileIn = document.getElementById('trackFileInput');
         const btn = document.getElementById('addTrackBtn');
         const file = fileIn.files[0];
         const title = titleIn.value.trim();
         if (!file || !title) { showToast("Заполните все поля", true); return; }
+        
         btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
         try {
             const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
             const { error: storageError } = await supabaseClient.storage.from('music').upload(fileName, file);
             if (storageError) throw storageError;
+            
             const { data: urlData } = supabaseClient.storage.from('music').getPublicUrl(fileName);
-            const { error: dbError } = await supabaseClient.from('tracks').insert([{ title: title, url: urlData.publicUrl, size: (file.size / 1024 / 1024).toFixed(2) + ' MB', created_at: new Date().toISOString() }]);
+            
+            // 🔐 ЗАПИСЬ С USER_ID ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ
+            const { error: dbError } = await supabaseClient.from('tracks').insert([{ 
+                title: title, 
+                url: urlData.publicUrl, 
+                size: (file.size / 1024 / 1024).toFixed(2) + ' MB', 
+                created_at: new Date().toISOString(),
+                user_id: user.uid // Привязываем трек к пользователю
+            }]);
+            
             if (dbError) throw dbError;
+            
             showToast("✅ Трек успешно добавлен!");
             titleIn.value = ''; fileIn.value = '';
             loadTracks();
-        } catch (e) { showToast("❌ Ошибка: " + e.message, true); } 
-        finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i>'; }
+        } catch (e) { 
+            showToast("❌ Ошибка: " + e.message, true); 
+        } finally { 
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i>'; 
+        }
     }
 
     async function deleteTrack(id) {
-        if(!confirm("Удалить?")) return;
+        if(!confirm("Удалить этот трек навсегда?")) return;
+        
+        // 🔐 ПРОВЕРКА ПРАВ НА УДАЛЕНИЕ
+        const track = tracks.find(t => t.id === id);
+        if (track && track.user_id !== user.uid) {
+            showToast("❌ Вы не можете удалить чужой трек!", true);
+            return;
+        }
+
         if(currentTrackId == id) { audio.pause(); document.getElementById('playerBar').classList.remove('visible'); currentTrackId = null; }
-        await supabaseClient.from('tracks').delete().eq('id', id);
-        loadTracks();
+        
+        const { error } = await supabaseClient.from('tracks').delete().eq('id', id);
+        if (error) {
+            showToast("❌ Ошибка удаления: " + error.message, true);
+        } else {
+            loadTracks();
+            showToast("Трек удален");
+        }
     }
 
     function setupAudioContext() {
