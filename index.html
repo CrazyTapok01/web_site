@@ -13,7 +13,7 @@
         body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; background-image: radial-gradient(circle at 10% 20%, rgba(94,0,255,0.15), transparent 40%); }
         .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1rem; }
         
-        /* Auth Styles - ИСПРАВЛЕНО */
+        /* Auth Styles */
         .auth-overlay { 
             position: fixed; inset: 0; background: #000; z-index: 100; 
             display: flex; align-items: center; justify-content: center; 
@@ -121,7 +121,7 @@
             <div id="loginFields">
                 <input type="text" id="usernameInput" placeholder="Введите ваш никнейм">
                 
-                <!-- Поле для ключа продюсера -->
+                <!-- Поле для ключа продюсера (изначально скрыто) -->
                 <div id="adminKeyField" style="display:none;">
                     <input type="password" id="adminKeyInput" placeholder="Секретный ключ продюсера">
                 </div>
@@ -189,26 +189,13 @@
         let isPlaying = false;
         let currentId = null;
 
-        // ================= ИСПРАВЛЕННАЯ ЛОГИКА АВТОРИЗАЦИИ =================
+        // ================= ПРОСТАЯ ЛОГИКА АВТОРИЗАЦИИ =================
         
-        // Добавляем обработчик события после загрузки страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            const roleSelect = document.getElementById('roleSelect');
-            
-            roleSelect.addEventListener('change', function() {
-                toggleRoleFields();
-            });
-            
-            // Вызываем функцию сразу при загрузке, чтобы установить начальное состояние
-            toggleRoleFields();
-        });
-
-        function toggleRoleFields() {
+        // Функция для переключения видимости поля ключа
+        function checkRole() {
             const role = document.getElementById('roleSelect').value;
             const adminField = document.getElementById('adminKeyField');
             const nameInput = document.getElementById('usernameInput');
-            
-            console.log("Выбрана роль:", role); // Для отладки
             
             if (role === 'producer') {
                 adminField.style.display = 'block';
@@ -220,6 +207,12 @@
                 nameInput.disabled = false;
             }
         }
+
+        // Привязываем функцию к изменению селекта
+        document.getElementById('roleSelect').addEventListener('change', checkRole);
+        
+        // Вызываем сразу при загрузке, чтобы скрыть поле если выбран слушатель
+        checkRole();
 
         function handleLogin() {
             const role = document.getElementById('roleSelect').value;
