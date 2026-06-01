@@ -113,7 +113,7 @@
         <div class="auth-box">
             <div class="logo">CRAZY<span>TAPOK</span></div>
             
-            <select id="roleSelect" onchange="toggleRoleFields()">
+            <select id="roleSelect">
                 <option value="listener"> Слушатель</option>
                 <option value="producer">🎛️ Продюсер</option>
             </select>
@@ -177,7 +177,7 @@
     <div class="toast" id="toast">Notification</div>
 
     <script>
-        // 🔥 SUPABASE CONFIG (ЗАМЕНИ НА СВОИ ДАННЫЕ)
+        // 🔥 SUPABASE CONFIG
         const SUPABASE_URL = 'https://giwbzwndnubccyntbtwb.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdpd2J6d25kbnViY2N5bnRidHdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTU5NDUsImV4cCI6MjA5NTg5MTk0NX0.-cU65iiadhKyzcT2Z5KQUqrdBoyxLtIIvcSpXq0oYVU';
         
@@ -191,7 +191,18 @@
 
         // ================= ИСПРАВЛЕННАЯ ЛОГИКА АВТОРИЗАЦИИ =================
         
-        // Эта функция вызывается при изменении селекта
+        // Добавляем обработчик события после загрузки страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleSelect = document.getElementById('roleSelect');
+            
+            roleSelect.addEventListener('change', function() {
+                toggleRoleFields();
+            });
+            
+            // Вызываем функцию сразу при загрузке, чтобы установить начальное состояние
+            toggleRoleFields();
+        });
+
         function toggleRoleFields() {
             const role = document.getElementById('roleSelect').value;
             const adminField = document.getElementById('adminKeyField');
@@ -310,7 +321,7 @@
 
             } catch (error) {
                 console.error(error);
-                showToast("❌ Ошибка: " + error.message, true);
+                showToast(" Ошибка: " + error.message, true);
             } finally {
                 btn.disabled = false;
                 btn.textContent = "Загрузить";
