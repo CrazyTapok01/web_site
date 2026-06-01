@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CrazyTapok | Music Hub</title>
+    <title>CrazyTapok | Secure Sonic Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* ... (ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ, КАК В ПРЕДЫДУЩЕМ КОДЕ) ... */
         :root {
             --bg-dark: #030105;
             --panel-bg: rgba(15, 10, 25, 0.85);
@@ -32,7 +31,7 @@
             color: var(--text-main);
             font-family: var(--font-main);
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow-x: hidden; /* Запрещаем горизонтальную прокрутку */
             position: relative;
         }
 
@@ -87,43 +86,6 @@
             max-width: 1200px; margin: 0 auto; padding: 2rem;
             display: grid; grid-template-columns: 320px 1fr; gap: 2.5rem;
             min-height: 100vh; position: relative; z-index: 1;
-        }
-
-        @media (max-width: 1024px) {
-            .app-container { 
-                grid-template-columns: 1fr; 
-                padding: 1.5rem; 
-                padding-bottom: 140px; 
-                gap: 1.5rem;
-            }
-            .sidebar { position: static; width: 100%; }
-            .glass-card { padding: 1.5rem; }
-            .avatar-wrapper { width: 100px; height: 100px; }
-            .user-name { font-size: 1.5rem; }
-            .stats-grid { margin-top: 1.5rem; padding-top: 1.5rem; }
-            
-            .player-dock {
-                padding: 0.8rem 1rem;
-                flex-wrap: wrap;
-                justify-content: space-between;
-                gap: 0.5rem;
-            }
-            .player-controls { order: 2; width: 100%; justify-content: center; margin-top: 0.5rem; gap: 1.5rem; }
-            .player-info { order: 1; width: calc(100% - 40px); margin-bottom: 0.2rem; }
-            .visualizer { order: 3; width: 100%; height: 25px; margin-top: 0.5rem; opacity: 0.7; }
-            .player-dock > div:last-child { display: none; }
-            .ctrl-main { font-size: 2.2rem; }
-            .ctrl-btn { font-size: 1.2rem; }
-            .track-item { padding: 1rem; }
-            .play-circle { width: 40px; height: 40px; font-size: 1rem; }
-            .upload-dropzone { padding: 2rem 1rem; }
-        }
-
-        @media (max-width: 380px) {
-            .user-name { font-size: 1.3rem; }
-            .stat-val { font-size: 1.2rem; }
-            .brand-logo { font-size: 2rem; }
-            .auth-card { padding: 2rem 1.5rem; }
         }
 
         .glass-card {
@@ -299,6 +261,109 @@
             font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .toast.show { transform: translateX(0); }
+
+        /* =========================================
+           📱 MOBILE ADAPTIVE STYLES (FIXED)
+           ========================================= */
+        @media (max-width: 1024px) {
+            .app-container { 
+                grid-template-columns: 1fr; /* Одна колонка */
+                padding: 1rem; /* Меньше отступы по краям */
+                padding-bottom: 160px; /* Место для плеера */
+                gap: 1.5rem;
+                width: 100%; /* Растягиваем на всю ширину */
+            }
+
+            .sidebar { 
+                position: static; /* Убираем липкость */
+                width: 100%;
+            }
+
+            .glass-card {
+                padding: 1.5rem;
+                width: 100%; /* Карточки на всю ширину */
+            }
+
+            .avatar-wrapper {
+                width: 100px; height: 100px;
+            }
+
+            .user-name { font-size: 1.5rem; }
+            
+            .stats-grid {
+                margin-top: 1.5rem;
+                padding-top: 1.5rem;
+            }
+
+            /* Адаптация плеера для мобильных */
+            .player-dock {
+                padding: 0.8rem 1rem;
+                flex-wrap: wrap; /* Разрешаем перенос */
+                justify-content: space-between;
+                gap: 0.5rem;
+                height: auto; /* Высота по содержимому */
+            }
+
+            .player-controls {
+                order: 2; /* Кнопки по центру */
+                width: 100%;
+                justify-content: center;
+                margin-top: 0.5rem;
+                gap: 1.5rem;
+            }
+
+            .player-info {
+                order: 1;
+                width: calc(100% - 40px);
+                margin-bottom: 0.2rem;
+                text-align: center; /* Центрируем текст */
+            }
+
+            .visualizer {
+                order: 3;
+                width: 100%;
+                height: 25px;
+                margin-top: 0.5rem;
+                opacity: 0.7;
+            }
+
+            /* Скрываем ползунок громкости на мобильных */
+            .player-dock > div:last-child {
+                display: none; 
+            }
+
+            .ctrl-main { font-size: 2.2rem; }
+            .ctrl-btn { font-size: 1.2rem; }
+
+            .track-item {
+                padding: 1rem;
+            }
+            
+            .play-circle {
+                width: 40px; height: 40px; font-size: 1rem;
+            }
+
+            .upload-dropzone {
+                padding: 2rem 1rem;
+            }
+            
+            /* Форма загрузки на мобильных */
+            #uploadSection > div:last-child {
+                flex-direction: column; /* Поле и кнопка друг под другом */
+            }
+            #uploadSection button {
+                width: 100%;
+                margin-top: 1rem;
+            }
+        }
+
+        /* Для очень маленьких экранов */
+        @media (max-width: 380px) {
+            .user-name { font-size: 1.3rem; }
+            .stat-val { font-size: 1.2rem; }
+            .brand-logo { font-size: 2rem; }
+            .auth-card { padding: 2rem 1.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -423,10 +488,6 @@
     const SUPABASE_URL = 'https://giwbzwndnubccyntbtwb.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdpd2J6d25kbnViY2N5bnRidHdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTU5NDUsImV4cCI6MjA5NTg5MTk0NX0.-cU65iiadhKyzcT2Z5KQUqrdBoyxLtIIvcSpXq0oYVU';
     
-    // 🔐 ЗАЩИТА: Используем Supabase Auth. Пароли не хранятся в коде.
-    // Введи здесь Email и Пароль, которые ты создал в Supabase Dashboard -> Authentication -> Users
-    const ADMIN_EMAIL = "prosunin3@gmail.com"; 
-    const ADMIN_PASSWORD = "CoRTeZz2191"; 
 
     let supabaseClient;
     let user = { name: "Guest", role: "listener", uid: null };
